@@ -1,0 +1,6 @@
+---
+[invenio]
+localhost
+
+[all:vars]
+host=localhost

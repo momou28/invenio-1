@@ -1,0 +1,6 @@
+---
+hostname: "{{ host }}"
+deploy_dir: "/var/www/html/invenio"
+venv: "inveniovenv"
+# Default user
+user: "ansible"

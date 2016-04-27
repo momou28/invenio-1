@@ -1,0 +1,8 @@
+---
+# Invenio credentials
+invenio_user: "invenio"
+
+# Database credentials
+db_user: "root"
+# Password encrypted using python-crypt"
+db_pass: "$6$Inv3n10S@lt$fwAMweJ2k2Ro6BkGl/iiwTjz7DFKiBt6PmHdzn6h2Y28J9D2xxzGlasSTCKy1bXyMnwxLT.sXa0j0Pg9ByrgC1"

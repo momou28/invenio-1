@@ -1,0 +1,85 @@
+---
+
+# Create invenio group
+- name: Create invenio group
+  group: name=invenio state=present
+
+# Add invenio user and make him admin to grant him sudo
+- name: Add invenio user
+  user: name={{ invenio_user }} home={{ deploy_dir }} createhome=yes groups=invenio,sudo append=yes
+
+# Provisioning packages
+- name: Packages provisioning
+  apt: name={{ item }} state=present force=yes
+  with_items:
+    - git
+    - screen
+    - libmysqlclient-dev
+    - build-essential
+    - redis-server 
+    - subversion
+    - libssl-dev
+    - libxml2-dev
+    - libxslt-dev
+    - libjpeg-dev
+    - libfreetype6-dev
+    - libtiff-dev
+    - software-properties-common
+    - python-dev
+    - libmysqlclient-dev
+    - libffi-dev
+    - apache2
+    - libapache2-mod-wsgi
+    - supervisor
+    - python-virtualenv
+    - htop
+    - python-software-properties
+    - python-apt # for runing apt_repository commands
+    - npm
+    - mysql-server
+  ignore_errors: yes
+
+# Add repository for NodeJS
+- name: Add NodeJS repository
+  apt_repository: repo='ppa:chris-lea/node.js' state=present update_cache=yes
+
+# Install NodeJS
+- name: Install NodeJS
+  apt: name=nodejs state=present
+
+# Install NPM required packages
+- name: Install NodeJS packages with npm
+  npm: name={{ item }} state=present global=yes
+  with_items:
+    - bower
+    - less
+    - clean-css
+    - uglify-js
+    - requirejs
+
+# Create assets dir
+- name: Create the assets dir
+  file: path={{ deploy_dir }}/assets state=directory mode=765 owner={{ invenio_user }}
+
+# Push assets for completing installation
+- name: Push requirements file
+  copy: src=requirements.txt dest={{ deploy_dir }}/assets/requirements.txt mode=755 owner={{ invenio_user }}
+
+# Install Python dependencies
+- name: Install python packages 
+  pip:  requirements={{ deploy_dir }}/assets/requirements.txt virtualenv={{ deploy_dir }}/{{ venv }} state=latest
+
+# Inveniomanage
+- name: creating the setup script for inveniomanage setup
+  template: src=inveniosetup.sh.j2 dest={{ deploy_dir }}/assets/inveniosetup.sh
+
+# Setting permissions to invenio as default user
+- name: update permissions
+  file: path={{ deploy_dir }} state=directory owner={{ invenio_user }} group=invenio recurse=yes
+
+
+# Running inveniomanage
+- name: Run inveniosetup script as invenio user
+  script: "{{ deploy_dir }}/assets/inveniosetup.sh"
+  become: yes
+  become_user: "{{ invenio_user }}"

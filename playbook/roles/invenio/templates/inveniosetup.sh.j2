@@ -1,0 +1,16 @@
+#! /bin/bash
+source {{ deploy_dir }}/{{ venv }}/bin/activate
+cd {{ deploy_dir }}/{{ venv }}
+inveniomanage config set CFG_BIBSCHED_PROCESS_USER invenio
+inveniomanage database init --user={{ db_user }} --password={{ db_pass }} --yes-i-know
+inveniomanage database create
+inveniomanage config create secret-key
+inveniomanage config set CFG_EMAIL_BACKEND flask.ext.email.backends.console.Mail
+inveniomanage config set CFG_INVENIO_HOSTNAME {{ hostname }}
+inveniomanage config set CFG_SITE_URL http://{{ hostname }}
+inveniomanage config set CFG_SITE_SECURE_URL https://{{ hostname }}
+
+JS_PATH=$(find /usr -iname r.js | head -1)
+inveniomanage config set REQUIREJS_BIN ${JSPATH}
+inveniomanage collect
+inveniomanage bower > bower.json

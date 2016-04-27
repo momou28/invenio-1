@@ -1,0 +1,5 @@
+- hosts: invenio
+  user: '{{ user }}'
+  sudo: yes
+  roles:
+    - invenio
